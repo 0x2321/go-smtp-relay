@@ -56,9 +56,6 @@ sudo install -m 0755 smtp-relay /usr/local/bin/smtp-relay
 # Install service unit
 sudo install -m 0644 smtp-relay.service /etc/systemd/system/smtp-relay.service
 
-# Adjust ExecStart path if needed (default in the provided unit is /bin/smtp-relay).
-# You can either move the binary to /bin or change ExecStart to /usr/local/bin/smtp-relay.
-
 # Reload and enable
 sudo systemctl daemon-reload
 sudo systemctl enable --now smtp-relay
