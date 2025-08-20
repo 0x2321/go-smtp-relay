@@ -102,19 +102,6 @@ main() {
     install -m 0755 "$tmpdir/${BINARY_NAME}" "$INSTALL_BIN_PATH"
   fi
 
-  echo "Ensuring configuration file is present"
-  if [ -f "$CONFIG_PATH" ]; then
-    echo "Config already exists at $CONFIG_PATH; not overwriting."
-  else
-    if [ "$EUID" -ne 0 ]; then
-      curl -fsSL "${RAW_BASE}/config.yaml" | sudo tee "$CONFIG_PATH" >/dev/null
-      sudo chmod 0644 "$CONFIG_PATH"
-    else
-      curl -fsSL "${RAW_BASE}/config.yaml" -o "$CONFIG_PATH"
-      chmod 0644 "$CONFIG_PATH"
-    fi
-  fi
-
   echo "Installing systemd service to ${SERVICE_PATH}"
   service_installed=0
   if [ -f "$SERVICE_PATH" ]; then
@@ -134,30 +121,30 @@ main() {
     echo "Reloading systemd daemon..."
     if [ "$EUID" -ne 0 ]; then
       sudo systemctl daemon-reload
-      echo "Enabling service..."
-      sudo systemctl enable "$BINARY_NAME"
-      echo "Starting service..."
-      sudo systemctl start "$BINARY_NAME" || sudo systemctl restart "$BINARY_NAME"
     else
       systemctl daemon-reload
-      echo "Enabling service..."
-      systemctl enable "$BINARY_NAME"
-      echo "Starting service..."
-      systemctl start "$BINARY_NAME" || systemctl restart "$BINARY_NAME"
     fi
+    echo "Systemd service installed at ${SERVICE_PATH}."
   else
-    echo "Skipping systemd service installation steps since service file already exists."
+    echo "Service file already exists; not overwriting."
   fi
 
   rm -rf "$tmpdir"
   echo
   echo "Installation complete."
   echo "Binary: ${INSTALL_BIN_PATH}"
-  echo "Config: ${CONFIG_PATH}"
   echo "Service: ${SERVICE_PATH}"
   echo
-  echo "To check status:    sudo systemctl status ${BINARY_NAME}"
-  echo "To view logs:       sudo journalctl -u ${BINARY_NAME} -f"
+  echo "Next steps:"
+  echo "  1) Create and edit your configuration at ${CONFIG_PATH}. For example:"
+  echo "     sudo curl -fsSL \"${RAW_BASE}/config.yaml\" -o \"${CONFIG_PATH}\" && sudo chmod 0644 \"${CONFIG_PATH}\""
+  echo "     Then edit it to your environment (secrets, ports, relays, etc.)."
+  echo "  2) Enable and start the service:"
+  echo "     sudo systemctl enable ${BINARY_NAME}"
+  echo "     sudo systemctl start ${BINARY_NAME}"
+  echo "  3) Check status and logs:"
+  echo "     sudo systemctl status ${BINARY_NAME}"
+  echo "     sudo journalctl -u ${BINARY_NAME} -f"
 }
 
 main "$@"
