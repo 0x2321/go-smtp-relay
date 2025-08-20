@@ -27,8 +27,11 @@ func mailHandler(c *client.Client, overwriteFrom string) func(net.Addr, string, 
 			return fmt.Errorf("failed to read message: %s", err)
 		}
 
-		subject := in.Header.Get("Subject")
-		contentTypeHeader := in.Header.Get("Content-Type")
+		subject := in.Header.Get(string(client.HeaderSubject))
+		contentTypeHeader := in.Header.Get(string(client.HeaderContentType))
+		if contentTypeHeader == "" {
+			contentTypeHeader = "text/plain; charset=us-ascii"
+		}
 		log.Printf("[msg %s] Parsed headers: Subject=%q Content-Type=%q", id, subject, contentTypeHeader)
 
 		// Copy headers
@@ -43,14 +46,24 @@ func mailHandler(c *client.Client, overwriteFrom string) func(net.Addr, string, 
 			return io.Copy(w, in.Body)
 		})
 
-		// Overwrite from address
+		// Overwrite sender address
 		if overwriteFrom != "" {
-			if err = out.From(overwriteFrom); err != nil {
-				log.Printf("[msg %s] Failed to overwrite sender to %q: %v", id, overwriteFrom, err)
-				return fmt.Errorf("failed to overwrite address: %s", err)
-			}
+			from = overwriteFrom
 		}
 
+		// Set FROM address
+		if err = out.From(from); err != nil {
+			log.Printf("[msg %s] Failed to set sender address: %v", id, err)
+			return fmt.Errorf("failed to set sender address: %s", err)
+		}
+
+		// Set TO addresses
+		if err = out.To(to...); err != nil {
+			log.Printf("[msg %s] Failed to set receiver addresses: %v", id, err)
+			return fmt.Errorf("failed to set receiver addresses: %s", err)
+		}
+
+		// Send message
 		if err = c.DialAndSend(out); err != nil {
 			log.Printf("[msg %s] Upstream send failed: %v", id, err)
 			return err
