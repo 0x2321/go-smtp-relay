@@ -87,10 +87,10 @@ main() {
 
   local tmpdir
   tmpdir=$(mktemp -d)
-  trap 'rm -rf "$tmpdir"' EXIT
+  # trap 'rm -rf "$tmpdir"' EXIT
 
   echo "Downloading binary..."
-  curl -fL "$asset_url" -o "$tmpdir/${BINARY_NAME}"
+  curl -fsSL "$asset_url" -o "$tmpdir/${BINARY_NAME}"
   chmod +x "$tmpdir/${BINARY_NAME}"
 
   echo "Installing binary to ${INSTALL_BIN_PATH}"
@@ -107,10 +107,10 @@ main() {
     echo "Config already exists at $CONFIG_PATH; not overwriting."
   else
     if [ "$EUID" -ne 0 ]; then
-      curl -fL "${RAW_BASE}/config.yaml" | sudo tee "$CONFIG_PATH" >/dev/null
+      curl -fsSL "${RAW_BASE}/config.yaml" | sudo tee "$CONFIG_PATH" >/dev/null
       sudo chmod 0644 "$CONFIG_PATH"
     else
-      curl -fL "${RAW_BASE}/config.yaml" -o "$CONFIG_PATH"
+      curl -fsSL "${RAW_BASE}/config.yaml" -o "$CONFIG_PATH"
       chmod 0644 "$CONFIG_PATH"
     fi
   fi
@@ -121,10 +121,10 @@ main() {
     echo "Service file already exists; not overwriting."
   else
     if [ "$EUID" -ne 0 ]; then
-      curl -fL "${RAW_BASE}/${BINARY_NAME}.service" | sudo tee "$SERVICE_PATH" >/dev/null
+      curl -fsSL "${RAW_BASE}/${BINARY_NAME}.service" | sudo tee "$SERVICE_PATH" >/dev/null
       sudo chmod 0644 "$SERVICE_PATH"
     else
-      curl -fL "${RAW_BASE}/${BINARY_NAME}.service" -o "$SERVICE_PATH"
+      curl -fsSL "${RAW_BASE}/${BINARY_NAME}.service" -o "$SERVICE_PATH"
       chmod 0644 "$SERVICE_PATH"
     fi
     service_installed=1
@@ -149,6 +149,7 @@ main() {
     echo "Skipping systemd service installation steps since service file already exists."
   fi
 
+  rm -rf "$tmpdir"
   echo
   echo "Installation complete."
   echo "Binary: ${INSTALL_BIN_PATH}"
