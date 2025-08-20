@@ -4,6 +4,6 @@ listen:
 
 upstream:
   host: mx.test.com
-  port: 444
+  port: 587
   user: mail@test.com
   password: super#secret!password
