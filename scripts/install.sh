@@ -80,6 +80,7 @@ main() {
   arch=$(map_arch)
   echo "Detected architecture: $arch"
 
+  echo
   echo "Fetching latest release asset URL..."
   local asset_url
   asset_url=$(fetch_latest_asset_url "$arch")
@@ -89,6 +90,7 @@ main() {
   tmpdir=$(mktemp -d)
   # trap 'rm -rf "$tmpdir"' EXIT
 
+  echo
   echo "Downloading binary..."
   curl -fsSL "$asset_url" -o "$tmpdir/${BINARY_NAME}"
   chmod +x "$tmpdir/${BINARY_NAME}"
@@ -102,6 +104,7 @@ main() {
     install -m 0755 "$tmpdir/${BINARY_NAME}" "$INSTALL_BIN_PATH"
   fi
 
+  echo
   echo "Installing systemd service to ${SERVICE_PATH}"
   service_installed=0
   if [ -f "$SERVICE_PATH" ]; then
