@@ -9,6 +9,18 @@ It is intended as a simple replacement for sendmail/postfix, to provide a local 
 - Optional SMTP authentication to upstream (username/password)
 - Optional sender overwrite (envelope/from)
 
+## Installation
+```bash
+# Quick install
+curl -fsSL https://raw.githubusercontent.com/0x2321/go-smtp-relay/main/scripts/install.sh | bash
+```
+```bash
+# Or download, review, then run
+curl -fsSL https://raw.githubusercontent.com/0x2321/go-smtp-relay/main/scripts/install.sh -o install.sh
+less install.sh
+bash install.sh
+```
+
 ## Configuration
 Configuration can be provided via:
 1) Config file (default path: /etc/smtp-relay.yaml)
