@@ -22,5 +22,5 @@ jobs:
           goos: linux
           goarch: amd64
           binary_name: smtp-relay
-          asset_name: ${BINARY_NAME}-${GOOS}-${GOARCH}
+          asset_name: smtp-relay-${{ matrix.goos }}-${{ matrix.goarch }}
           compress_assets: OFF
