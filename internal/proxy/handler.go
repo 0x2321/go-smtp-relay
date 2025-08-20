@@ -56,6 +56,7 @@ func mailHandler(c *client.Client, overwriteFrom string) func(net.Addr, string, 
 		})
 
 		// Overwrite sender address
+		from = in.Header.Get(string(client.HeaderFrom))
 		if overwriteFrom != "" {
 			from = overwriteFrom
 		}
