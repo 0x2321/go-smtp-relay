@@ -1,0 +1,9 @@
+listen:
+  address: 127.0.0.1
+  port: 25
+
+upstream:
+  host: mx.test.com
+  port: 444
+  user: mail@test.com
+  password: super#secret!password
