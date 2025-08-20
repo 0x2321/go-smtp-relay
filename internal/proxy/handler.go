@@ -7,9 +7,15 @@ import (
 	"log"
 	"net"
 	"net/mail"
+	"slices"
 
 	client "github.com/wneessen/go-mail"
 )
+
+var skippedHeaders = []string{
+	string(client.HeaderFrom),
+	string(client.HeaderTo),
+}
 
 func mailHandler(c *client.Client, overwriteFrom string) func(net.Addr, string, []string, []byte) error {
 	return func(origin net.Addr, from string, to []string, data []byte) error {
@@ -36,6 +42,9 @@ func mailHandler(c *client.Client, overwriteFrom string) func(net.Addr, string, 
 
 		// Copy headers
 		for header, values := range in.Header {
+			if slices.Contains(skippedHeaders, header) {
+				continue
+			}
 			out.SetGenHeader(client.Header(header), values...)
 		}
 
